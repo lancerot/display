@@ -1,0 +1,63 @@
+	* {
+		position: relative;
+		box-sizing: border-box;
+		vertical-align: middle;
+	}
+
+	html {
+		font-size: 62.5%;
+	}
+
+	body {
+		min-width: 1024px;
+		max-width: 1440px;
+		margin: 0 auto;
+		font-family: NSimSun, MicroSoftYaHei;
+		font-size: 1.6rem;
+		line-height: 1.6em;
+	}
+
+	a {
+		text-decoration: none;
+		color: blue;
+	}
+
+	a:active {
+		color: red;
+	}
+
+	img {
+		max-width: 100%;
+	}
+
+	ul{
+		margin: 0;
+		list-style-type: none;
+		padding-left: 1em;
+	}
+
+	input[type="text"],
+	input[type="password"] {
+		display: block;
+		width: 100%;
+		font-size: 1.6rem;
+		padding: .25em .5em;
+	}
+
+	.common-container800 {
+		width: 800px;
+		margin: 0 auto;
+	}
+
+	.common-container1024 {
+		width: 1024px;
+		margin: 0 auto;
+	}
+
+	.common-fullscreenContainer {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+	}

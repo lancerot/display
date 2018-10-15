@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="resource/common.css">
+	<title>Clock</title>
+	<style type="text/css">
+		.clock{
+			width: 50em;
+			height: 50em;
+			margin: 5em auto 0 auto;
+			border-radius: 50%;
+			box-shadow: 0 0 1em black;
+		}
+		.clock-scale,
+		.clock-center,
+		.clock-second,
+		.clock-min,
+		.clock-hour{
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			background-color: black;
+			transition: transform .5s;
+			box-shadow: 0 0 1em black;
+		}
+		.clock-scale{
+			width: .1em;
+			height: 1em;
+			margin-top: -.5em;
+			margin-left: -.05em;
+		}
+		.clock-center{
+			width: 1em;
+			height: 1em;
+			margin-top: -.5em;
+			margin-left: -.5em;
+			border-radius: 50%;
+		}
+		.clock-second{
+			width: .2em;
+			height: 20em;
+			margin-top: -10em;
+			margin-left: -.1em;
+		}
+		.clock-min{
+			width: .4em;
+			height: 15em;
+			margin-top: -7.5em;
+			margin-left: -.2em;
+		}
+		.clock-hour{
+			width: .8em;
+			height: 10em;
+			margin-top: -5em;
+			margin-left: -.4em;
+		}
+	</style>
+	<script type="text/javascript">
+		window.onload=function(){
+			var secondHand;
+			var minHand;
+			var hourHand;
+
+			function init(){
+				var center=document.createElement("div");
+				center.className="clock-center";
+				clock.append(center);
+
+				secondHand=document.createElement("div");
+				secondHand.className="clock-second";
+				secondHand.setAttribute("second","0");
+				clock.append(secondHand);
+
+				minHand=document.createElement("div");
+				minHand.className="clock-min";
+				minHand.setAttribute("min","0");
+				clock.append(minHand);
+
+				hourHand=document.createElement("div");
+				hourHand.className="clock-hour";
+				hourHand.setAttribute("hour","0");
+				clock.append(hourHand);
+
+				drawScale();
+
+				setTime();
+			}
+
+			function drawScale(){
+				for(var count=0;count<60;count++){
+					var scale=document.createElement("div");
+					scale.className="clock-scale";
+					scale.setAttribute("style","transform: rotateZ("+6*count+"deg) translateY(-24em);");
+					clock.append(scale);
+				}
+			}
+
+			function setSecondHand(second){
+				secondHand.setAttribute("second",second);
+				secondHand.setAttribute("style","transform: rotateZ("+6*second+"deg) translateY(-10em)");
+			}
+
+			function setMinHand(min){
+				minHand.setAttribute("min",min);
+				minHand.setAttribute("style","transform: rotateZ("+6*min+"deg) translateY(-7.5em)");
+			}
+
+			function setHourHand(hour){
+				hourHand.setAttribute("hour",hour);
+				hourHand.setAttribute("style","transform: rotateZ("+30*hour+"deg) translateY(-5em)");
+			}
+
+			function setTime(hour,min,second){
+				var date=new Date();
+				setSecondHand(date.getSeconds());
+				setMinHand(date.getMinutes());
+				setHourHand(date.getHours());
+			}
+
+			init();
+			
+			function next(){
+				var nextSecond=parseInt(secondHand.getAttribute("second"))+1;
+				setSecondHand(nextSecond);
+				if(nextSecond%60==0){
+					var nextMin=parseInt(minHand.getAttribute("min"))+1;
+					setMinHand(nextMin);
+					if(nextMin%60==0)
+						setHourHand(parseInt(hourHand.getAttribute("hour"))+1);
+				}
+			}
+
+			function start(){
+				setInterval(next,1000);
+			}
+
+			start();
+		};
+	</script>
+</head>
+<body>
+	<div id="clock" class="clock">
+	</div>
+</body>
+</html>

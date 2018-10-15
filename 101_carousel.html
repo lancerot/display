@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="resource/common.css">
+	<title>carousel</title>
+	<style type="text/css">
+		.carousel-screen{
+			margin-top: 5em;
+			overflow: hidden;
+			box-shadow: 0 0 1em black;
+		}
+		.carousel-container{
+			white-space: nowrap;
+			transition: transform 1s;
+		}
+		.carousel-item{
+			display: inline-flex;
+			justify-content: center;
+			align-items: center;
+			white-space: nowrap;
+			width: 100%;
+			height: 2em;
+			font-size: 16rem;
+		}
+		.carousel-switch{
+			position: absolute;
+			width: 100%;
+			padding: .5em 0;
+			bottom: 0;
+			left: 0;
+			text-align: center;
+		}
+		.carousel-switcher{
+			display: inline-block;
+			width: .75em;
+			height: .75em;
+			margin: 0 .25em;
+			border-radius: 50%;
+			box-shadow: 0 0 1em black;
+			cursor: pointer;
+			transition: background-color .5s, box-shadow .5s;
+		}
+		.carousel-switcher:hover{
+			background-color: black;
+			box-shadow: 0 0 1em white;
+		}
+	</style>
+	<script type="text/javascript">
+		window.onload=function(){
+			var carouselContainer=document.getElementById("carousel-container");
+			var carouselSwitch=document.getElementById("carousel-switch");
+			var carouselItems=carouselContainer.getElementsByClassName("carousel-item");
+			var carouselSwitcher=[];
+
+			for(var count=0;count<carouselItems.length;count++){
+				var switcher=document.createElement("div");
+				switcher.setAttribute("class","carousel-switcher");
+				switcher.setAttribute("target",count+1);
+				carouselSwitch.append(switcher);
+				carouselSwitcher.push(switcher);
+			}
+
+			carouselSwitcher.forEach(function(switcher){
+				switcher.onclick=function(){
+					switchTo(this.getAttribute("target"));
+				};
+			});
+
+
+			function next(){
+				var nextIndex=parseInt(carouselContainer.getAttribute("active"))+1;
+				if(nextIndex>carouselItems.length)
+					nextIndex=1;
+				carouselContainer.setAttribute("active",nextIndex);
+				var offset="transform: translateX("+(-carouselContainer.clientWidth*(nextIndex-1))+"px);";
+				carouselContainer.setAttribute("style",offset);
+			}
+
+			function switchTo(index){
+				var active=index%carouselItems.length;
+				if(active==0)
+					active=carouselItems.length;
+				carouselContainer.setAttribute("active",active);
+				var offset="transform: translateX("+(-carouselContainer.clientWidth*(active-1))+"px);";
+				carouselContainer.setAttribute("style",offset);
+			}
+			
+			var timer=setInterval(next,5000);
+
+			carouselContainer.onmouseenter=function(){
+				clearInterval(timer);
+			};
+
+			carouselContainer.onmouseout=function(){
+				timer=setInterval(next,5000);
+			};
+		}
+	</script>
+</head>
+<body>
+	<div class="common-container">
+		<div class="carousel-screen">
+			<div id="carousel-container" class="carousel-container" active="1">
+				<div class="carousel-item">1</div><div class="carousel-item">2</div><div class="carousel-item">3</div><div class="carousel-item">4</div><div class="carousel-item">5</div><div class="carousel-item">6</div><div class="carousel-item">7</div><div class="carousel-item">8</div><div class="carousel-item">9</div><div class="carousel-item">10</div><div class="carousel-item">11</div><div class="carousel-item">12</div>
+			</div>
+			<div id="carousel-switch" class="carousel-switch"></div>
+		</div>
+	</div>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="resource/common.css">
+	<script type="text/javascript" src="resource/jquery-3.3.1.min.js"></script>
+	<title>Cart</title>
+	<style type="text/css">
+		.item,
+		.cart{
+			width: 100%;
+			margin-top: 5em;
+		}
+		.item td,
+		.cart td{
+			width: 25%;
+			padding: .5em;
+			box-shadow: 0 0 1em grey;
+			text-align: center;
+		}
+		.cart tbody tr:last-child td{
+			text-align: right;
+		}
+		.operation-add,
+		.operation-remove{
+			display: inline-block;
+			padding: .25em .5em;
+			cursor: pointer;
+		}
+	</style>
+	<script type="text/javascript">
+		document.onselectstart=function(){return false;};
+		$(function(){
+			function count(){
+				var count=0;
+				$("table.cart tr").each(function(){
+					var price=parseFloat($(this).find("td").eq(1).text());
+					if(!isNaN(price))
+						count+=price*$(this).find("td").eq(2).text();
+				});
+				$("span.count").text(count);
+			}
+
+			$("span.operation-add").click(function(){
+				var currentRow=$(this).parent().parent();
+				var exist=false;
+				$("table.cart tr").each(function(){
+					if($(this).find("td").eq(0).text()==$(currentRow).find("td").eq(0).text()){
+						if(parseInt($(currentRow).find("td").eq(2).text())>parseInt($(this).find("td").eq(2).text()))
+							$(this).find("td").eq(2).text(parseInt($(this).find("td").eq(2).text())+1);
+						exist=true;
+					}
+				});
+				if(!exist){
+					var item=$("<tr></tr>");
+					$(item).append($("<td>"+$(currentRow).find("td").eq(0).text()+"</td>"))
+					$(item).append($("<td>"+$(currentRow).find("td").eq(1).text()+"</td>"))
+					$(item).append($("<td>1</td>"))
+					var removeButton=$('<span class="operation-remove">移除</span>');
+					removeButton.click(function(){
+						$(this).parent().parent().remove();
+						count();
+					});
+					var operationNode=$("<td></td>");
+					$(operationNode).append($(removeButton));
+					$(item).append(operationNode);
+					$("span.count").parent().parent().before($(item));
+				}
+				count();
+			});
+		});
+	</script>
+</head>
+<body>
+	<div class="common-container800">
+		<table class="item">
+			<tbody>
+				<tr>
+					<td>名称</td>
+					<td>单价</td>
+					<td>库存</td>
+					<td>操作</td>
+				</tr>
+				<tr>
+					<td>Personal Computer</td>
+					<td>5699.88</td>
+					<td>8</td>
+					<td><span class="operation-add">加入购物车</span></td>
+				</tr>
+				<tr>
+					<td>iWatch</td>
+					<td>4654.66</td>
+					<td>6</td>
+					<td><span class="operation-add">加入购物车</span></td>
+				</tr>
+			</tbody>
+		</table>
+		<table class="cart">
+			<tbody>
+				<tr>
+					<td>名称</td>
+					<td>单价</td>
+					<td>数量</td>
+					<td>操作</td>
+				</tr>
+				<tr>
+					<td colspan="4"><span>合计:</span><span class="count">0</span></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>

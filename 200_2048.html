@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="resource/common.css">
+	<title>2048</title>
+	<style type="text/css">
+		.game2048-main {
+			width: 320px;
+			height: 320px;
+			margin: 0 auto;
+			border-radius: 10px;
+			background-color: #bbada0;
+			box-shadow: 0 0 16px grey;
+			overflow: hidden;
+		}
+		.game2048-main-node,
+		.game2048-main-background {
+			width: 76px;
+			height: 76px;
+			margin: 2px;
+			border-radius: 10px;
+		}
+		.game2048-main-node {
+			display: flex;
+			position: absolute;
+			justify-content: center;
+			align-items: center;
+			font-size: 4.8rem;
+			font-weight: bold;
+			color: #f9f6f2;
+			transition: all .5s;
+		}
+		.game2048-main-background {
+			display: inline-block;
+			background-color: rgba(238, 228, 218, 0.35);
+			box-shadow: 0 0 16px grey;
+		}
+		/* node position list start */
+		.game2048-main-node[row="1"] {
+			top: 0;
+		}
+		.game2048-main-node[row="2"] {
+			top: 80px;
+		}
+		.game2048-main-node[row="3"] {
+			top: 160px;
+		}
+		.game2048-main-node[row="4"] {
+			top: 240px;
+		}
+		.game2048-main-node[col="1"] {
+			left: 0;
+		}
+		.game2048-main-node[col="2"] {
+			left: 80px;
+		}
+		.game2048-main-node[col="3"] {
+			left: 160px;
+		}
+		.game2048-main-node[col="4"] {
+			left: 240px;
+		}
+		/* node position list end */
+
+		/* node number background start */
+		.game2048-main-node[value="2"] {
+			color: #776e65;
+			background-color: #eee4da;
+		}
+		.game2048-main-node[value="4"] {
+			color: #776e65;
+			background-color: #ede0c8;
+		}
+		.game2048-main-node[value="8"] {
+			background-color: #f2b179;
+		}
+		.game2048-main-node[value="16"] {
+			background-color: #f59563;
+		}
+		.game2048-main-node[value="32"] {
+			background-color: #f67c5f;
+		}
+		.game2048-main-node[value="64"] {
+			background-color: #f65e3b;
+		}
+		.game2048-main-node[value="128"] {
+			background-color: #edcf72;
+		}
+		.game2048-main-node[value="256"] {
+			background-color: #edcc61;
+			box-shadow: 0 0 16px #edcc61;
+		}
+		.game2048-main-node[value="512"] {
+			background-color: #edc850;
+			box-shadow: 0 0 16px #edc850;
+		}
+		.game2048-main-node[value="1024"] {
+			font-size: 3.6rem;
+			background-color: #edc53f;
+			box-shadow: 0 0 16px #edc53f;
+		}
+		.game2048-main-node[value="2048"] {
+			font-size: 3.6rem;
+			background-color: #bbb;
+		}
+		.game2048-main-node[value="4096"] {
+			font-size: 3.6rem;
+			background-color: #bbb;
+		}
+		.game2048-main-node[value="8192"] {
+			font-size: 3.6rem;
+			background-color: #bbb;
+		}
+		/* node number background end */
+	</style>
+	<script type="text/javascript">
+		window.onload=function(){
+			var divElements=document.getElementsByTagName("div");
+
+			var ROWS_COUNT=4;
+			var COLS_COUNT=4;
+
+			var main=function(){
+				for(var count=0;count<divElements.length;count++)
+					if(divElements[count].getAttribute("class")=="game2048-main")
+						return divElements[count];
+			}();
+
+			for(var row=0;row<ROWS_COUNT;row++)
+				for(var col=0;col<COLS_COUNT;col++){
+					var backgroundNode=document.createElement("div");
+					backgroundNode.setAttribute("class","game2048-main-background");
+					main.append(backgroundNode);
+				}
+
+			var nodes=[];
+			function createNode(row,col,value){
+				var node=document.createElement("div");
+				node.setAttribute("class","game2048-main-node");
+				node.setAttribute("row",row);
+				node.setAttribute("col",col);
+				node.setAttribute("value",value);
+				node.setAttribute("plused","false");
+				main.append(node);
+				nodes.push(node);
+			}
+
+			for(var row=0;row<ROWS_COUNT;row++)
+				for(var col=0;col<COLS_COUNT;col++)
+					createNode(row+1,col+1,0);
+
+			function getNode(row,col){
+				for(var count=0;count<nodes.length;count++)
+					if(nodes[count].getAttribute("row")==row&&nodes[count].getAttribute("col")==col)
+						return nodes[count];
+			}
+
+			function posIsTaken(row,col){
+				for(var count=0;count<nodes.length;count++)
+					if(nodes[count].getAttribute("row")==row&&nodes[count].getAttribute("col")==col&&nodes[count].getAttribute("value")!="0")
+						return true;
+				return false;
+			}
+
+			function posChange(node,onode){
+				var tempRow = node.getAttribute("row");
+				var tempCol = node.getAttribute("col");
+				node.setAttribute("row",onode.getAttribute("row"));
+				node.setAttribute("col",onode.getAttribute("col"));
+				onode.setAttribute("row",tempRow);
+				onode.setAttribute("col",tempCol);
+			}
+
+			function clearFlag(){
+				nodes.forEach(function(node){
+					node.setAttribute("plused","false");
+				});
+			}
+
+			function writeText(){
+				for(var count=0;count<nodes.length;count++)
+					if(nodes[count].getAttribute("value")!="0")
+						nodes[count].innerText=nodes[count].getAttribute("value");
+					else
+						nodes[count].innerText="";
+			}
+
+			function newNumber(){
+				var row;
+				var col;
+				while(posIsTaken(row=parseInt(Math.random()*ROWS_COUNT)+1,col=parseInt(Math.random()*COLS_COUNT)+1)){
+					row=parseInt(Math.random()*ROWS_COUNT)+1;
+					col=parseInt(Math.random()*COLS_COUNT)+1;
+				}
+				if(Math.random()>0.8)
+					getNode(row,col).setAttribute("value","4");
+				else
+					getNode(row,col).setAttribute("value","2");
+			}
+
+			window.onkeyup=function(event){
+				var isMoved=false;
+				switch(event.key){
+					case "ArrowUp":
+					case "w":
+						for(var operCol=0;operCol<COLS_COUNT;operCol++)
+							for(var operRow=0;operRow<ROWS_COUNT;operRow++){
+								var node=getNode(operRow+1,operCol+1);
+								if(node.getAttribute("value")!=0){
+									while(node.getAttribute("row")>1){
+										var next=getNode(node.getAttribute("row")-1,operCol+1);
+										if(next.getAttribute("plused")=="true")
+											break;
+										if(next.getAttribute("value")=="0"){
+											posChange(node,next);
+											isMoved=true;
+										}else if(next.getAttribute("value")==node.getAttribute("value")){
+											node.setAttribute("value",node.getAttribute("value")*2);
+											next.setAttribute("value","0");
+											node.setAttribute("plused","true");
+											posChange(node,next);
+											isMoved=true;
+											break;
+										}else if(next.getAttribute("value")!="0"&&next.getAttribute("value")!=node.getAttribute("value"))
+											break;	
+									}
+								}
+							}
+						break;
+					case "ArrowDown":
+					case "s":
+						for(var operCol=0;operCol<COLS_COUNT;operCol++)
+							for(var operRow=ROWS_COUNT-1;operRow>=0;operRow--){
+								var node=getNode(operRow+1,operCol+1);
+								if(node.getAttribute("value")!=0){
+									while(node.getAttribute("row")<ROWS_COUNT){
+										var next=getNode(parseInt(node.getAttribute("row"))+1,operCol+1);
+										if(next.getAttribute("plused")=="true")
+											break;
+										if(next.getAttribute("value")=="0"){
+											posChange(node,next);
+											isMoved=true;
+										}else if(next.getAttribute("value")==node.getAttribute("value")){
+											node.setAttribute("value",node.getAttribute("value")*2);
+											next.setAttribute("value","0");
+											node.setAttribute("plused","true");
+											posChange(node,next);
+											isMoved=true;
+											break;
+										}else if(next.getAttribute("value")!="0"&&next.getAttribute("value")!=node.getAttribute("value"))
+											break;	
+									}
+								}
+							}
+						break;
+					case "ArrowLeft":
+					case "a":
+						for(var operRow=0;operRow<ROWS_COUNT;operRow++)
+							for(var operCol=0;operCol<COLS_COUNT;operCol++){
+								var node=getNode(operRow+1,operCol+1);
+								if(node.getAttribute("value")!=0){
+									while(node.getAttribute("col")>1){
+										var next=getNode(operRow+1,node.getAttribute("col")-1);
+										if(next.getAttribute("plused")=="true")
+											break;
+										if(next.getAttribute("value")=="0"){
+											posChange(node,next);
+											isMoved=true;
+										}else if(next.getAttribute("value")==node.getAttribute("value")){
+											node.setAttribute("value",node.getAttribute("value")*2);
+											next.setAttribute("value","0");
+											node.setAttribute("plused","true");
+											posChange(node,next);
+											isMoved=true;
+											break;
+										}else if(next.getAttribute("value")!="0"&&next.getAttribute("value")!=node.getAttribute("value"))
+											break;	
+									}
+								}
+							}
+						break;
+					case "ArrowRight":
+					case "d":
+						for(var operRow=0;operRow<ROWS_COUNT;operRow++)
+							for(var operCol=COLS_COUNT-1;operCol>=0;operCol--){
+								var node=getNode(operRow+1,operCol+1);
+								if(node.getAttribute("value")!=0){
+									while(node.getAttribute("col")<COLS_COUNT){
+										var next=getNode(operRow+1,parseInt(node.getAttribute("col"))+1);
+										if(next.getAttribute("plused")=="true")
+											break;
+										if(next.getAttribute("value")=="0"){
+											posChange(node,next);
+											isMoved=true;
+										}else if(next.getAttribute("value")==node.getAttribute("value")){
+											node.setAttribute("value",node.getAttribute("value")*2);
+											next.setAttribute("value","0");
+											node.setAttribute("plused","true");
+											posChange(node,next);
+											isMoved=true;
+											break;
+										}else if(next.getAttribute("value")!="0"&&next.getAttribute("value")!=node.getAttribute("value"))
+											break;	
+									}
+								}
+							}
+						break;
+				}
+				if(isMoved){
+					clearFlag()
+					newNumber();
+					writeText();
+				}
+			}
+
+			function init(){
+				nodes.forEach(function(node){
+					node.setAttribute("value","0");
+				});
+
+				for(var count=2;count>0;count--)
+					newNumber();
+				writeText();
+			}
+
+			init();
+		}	
+	</script>
+</head>
+<body>
+	<div class="container">
+		<div class="game2048">
+			<div class="game2048-main">
+			</div>
+		</div>
+	</div>
+</body>
+</html>

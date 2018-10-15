@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="resource/common.css">
+	<title>Calculator</title>
+	<style type="text/css">
+		.calculator {
+			width: 640px;
+			margin: 0 auto;
+			margin-top: 5em;
+			padding: 1em;
+			font-size: 3.2rem;
+			box-shadow: 0 0 1em grey;
+		}
+		.calculator-screen {
+			box-shadow: 0 0 1em grey;
+			text-align: right;
+		}
+		.calculator-screen-result,
+		.calculator-screen-input {
+			padding: .5em;
+			overflow-x: auto;
+			overflow-y: hidden;
+		}
+		.calculator-keyboard {
+			display: flex;
+			margin-top: .5em;
+			padding: .5em;
+			box-shadow: 0 0 1em grey;
+		}
+		.calculator-keyboard-number {
+			flex: 2 2 auto;
+			margin-right: .5em;
+		}
+		.calculator-keyboard-operation {
+			flex: 1 1 auto;
+			margin-left: .5em;
+		}
+		.keyboard-number-item,
+		.keyboard-operation-item {
+			display: inline-block;
+			padding: .5em 0;
+			text-align: center;
+			box-shadow: 0 0 1em grey;
+			cursor: pointer;
+			transition: background-color .5s, color .5s, box-shadow .5s;
+		}
+		.keyboard-number-item {
+			width: 33%;
+		}
+		.keyboard-operation-item {
+			width: 50%;
+		}
+		.keyboard-number-item:hover,
+		.keyboard-operation-item:hover {
+			background-color: orange;
+			color: white;
+			box-shadow: 0 0 1em orange;
+		}
+		.keyboard-number-item:active,
+		.keyboard-operation-item:active {
+			color: red;
+		}
+	</style>
+	<script type="text/javascript">
+		window.onload=function(){
+			var div_elements=document.getElementsByTagName("div");
+			for(var count=0;count<div_elements.length;count++)
+				div_elements[count].onselectstart=function(){
+					return false;
+				}
+
+			var input=function(){
+				for(var count=0;count<div_elements.length;count++)
+					if("calculator-screen-input"==div_elements[count].getAttribute("class"))
+						return div_elements[count];
+			}();
+
+			var result=function(){
+				for(var count=0;count<div_elements.length;count++)
+					if("calculator-screen-result"==div_elements[count].getAttribute("class"))
+						return div_elements[count];
+			}();
+
+			var keys=[];
+			for(var count=0;count<div_elements.length;count++)
+				if(div_elements[count].getAttribute("key-value")!=null)
+					keys.push(div_elements[count]);
+
+			var hasPoint=false;
+
+			function excute(nums,opers){
+				while(opers.toString().indexOf("*")!=-1||opers.toString().indexOf("/")!=-1){
+					var current ;
+					if(opers.toString().indexOf("*")!=-1&&opers.toString().indexOf("/")!=-1)
+						current=Math.min(opers.toString().indexOf("*")/2,opers.toString().indexOf("/")/2);
+					else
+						current=Math.max(opers.toString().indexOf("*")/2,opers.toString().indexOf("/")/2);
+
+					var value;
+					switch(opers[current]){
+						case "*":
+							value=nums[current]*nums[current+1];
+							break;
+						case "/":
+							value=nums[current]/nums[current+1];
+							break;
+					}
+
+					nums=nums.toString().replace(nums[current]+","+nums[current+1],value).split(",");
+					opers=function(){
+						var arr=[];
+						var temp=opers.toString().replace(opers[current],"").split(",")
+						for(var o_count=0;o_count<temp.length;o_count++)
+							if(temp[o_count]!="")
+								arr.push(temp[o_count]);
+						return arr;
+					}();
+				}
+
+				while(opers.toString().indexOf("+")!=-1||opers.toString().indexOf("-")!=-1){
+					var current ;
+					if(opers.toString().indexOf("+")!=-1&&opers.toString().indexOf("-")!=-1)
+						current=Math.min(opers.toString().indexOf("+")/2,opers.toString().indexOf("-")/2);
+					else
+						current=Math.max(opers.toString().indexOf("+")/2,opers.toString().indexOf("-")/2);
+
+					var value;
+					switch(opers[current]){
+						case "+":
+							value=parseFloat(nums[current])+parseFloat(nums[current+1]);
+							break;
+						case "-":
+							value=nums[current]-nums[current+1];
+							break;
+					}
+
+					nums=nums.toString().replace(nums[current]+","+nums[current+1],value).split(",");
+					opers=function(){
+						var arr=[];
+						var temp=opers.toString().replace(opers[current],"").split(",")
+						for(var o_count=0;o_count<temp.length;o_count++)
+							if(temp[o_count]!="")
+								arr.push(temp[o_count]);
+						return arr;
+					}();
+				}	
+
+				return nums.toString();
+			}
+
+			for(var count=0;count<keys.length;count++)
+				keys[count].onclick=function(){
+					var key_value=this.getAttribute("key-value");
+					if(key_value=="c"){
+						input.innerText="0";
+						result.innerText="0";
+						hasPoint=false;
+					}else if(key_value=="="){
+						if(!new RegExp("^.+[\\+\\-\\*/\\.]$").test(input.innerText)){
+							var numbers=input.innerText.split(new RegExp("[\\+\\-\\*/]"));
+							var operators=function(){
+								var arr=[];
+								var temp=input.innerText.split(new RegExp("\\d"));
+								for(var o_count=0;o_count<temp.length;o_count++)
+									if(temp[o_count]!=""&&temp[o_count]!=".")
+										arr.push(temp[o_count]);
+								return arr;
+							}();
+							result.innerText=excute(numbers,operators);
+						}
+					}else{
+						if(new RegExp("\\d").test(key_value)){
+							if(input.innerText!="0")
+								input.innerText=input.innerText+key_value;
+							else
+								input.innerText=key_value;
+						}else if(new RegExp("[\\+\\-\\*/]").test(key_value)){
+							if(!new RegExp("^.+[\\+\\-\\*/\\.]$").test(input.innerText)){
+								input.innerText=input.innerText+key_value;
+								hasPoint=false;
+							}
+						}else if(key_value=="."){
+							if(!new RegExp("^.+[\\+\\-\\*/\\.]$").test(input.innerText)&&!hasPoint){
+								input.innerText=input.innerText+key_value;
+								hasPoint=true;
+							}
+						}
+					}
+				}
+		};
+	</script>
+</head>
+<body>
+	<div class="common-fullscreenContainer">
+		<div class="common-container">
+			<div class="calculator">
+				<div class="calculator-screen">
+					<div class="calculator-screen-result">0</div>
+					<div class="calculator-screen-input">0</div>
+				</div>
+				<div class="calculator-keyboard">
+					<div class="calculator-keyboard-number">
+						<div class="keyboard-number-item" key-value="1">1</div><div class="keyboard-number-item" key-value="2">2</div><div class="keyboard-number-item" key-value="3">3</div><div class="keyboard-number-item" key-value="4">4</div><div class="keyboard-number-item" key-value="5">5</div><div class="keyboard-number-item" key-value="6">6</div><div class="keyboard-number-item" key-value="7">7</div><div class="keyboard-number-item" key-value="8">8</div><div class="keyboard-number-item" key-value="9">9</div><div class="keyboard-number-item" key-value="0" style="width: 66%;">0</div><div class="keyboard-number-item" key-value=".">.</div>
+					</div><div class="calculator-keyboard-operation">
+						<div class="keyboard-operation-item" key-value="+">+</div><div class="keyboard-operation-item" key-value="-">-</div><div class="keyboard-operation-item" key-value="*">*</div><div class="keyboard-operation-item" key-value="/">/</div><div class="keyboard-operation-item" key-value="=">=</div><div class="keyboard-operation-item" key-value="c">Clear</div>
+					</div>
+				</div>
+			</div>		
+		</div>
+	</div>
+</body>
+</html>
